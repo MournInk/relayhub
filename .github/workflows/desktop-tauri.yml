@@ -9,6 +9,7 @@ on:
     paths:
       - "apps/desktop/**"
       - "apps/console/**"
+      - "server/**"
       - ".github/workflows/desktop-tauri.yml"
       - "package.json"
       - "package-lock.json"
@@ -22,8 +23,23 @@ jobs:
       matrix:
         include:
           - platform: ubuntu-22.04
+            artifact_name: linux-x64
+            target: x86_64-unknown-linux-gnu
+            goos: linux
+            goarch: amd64
+            binary_ext: ""
           - platform: windows-latest
+            artifact_name: windows-x64
+            target: x86_64-pc-windows-msvc
+            goos: windows
+            goarch: amd64
+            binary_ext: ".exe"
           - platform: macos-latest
+            artifact_name: macos-arm64
+            target: aarch64-apple-darwin
+            goos: darwin
+            goarch: arm64
+            binary_ext: ""
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +55,11 @@ jobs:
           node-version: 22
           cache: npm
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: swatinem/rust-cache@v2
@@ -47,4 +68,25 @@ jobs:
 
       - run: npm ci
       - run: npm run build:console
-      - run: npm run tauri:build --workspace @relayhub/desktop
+
+      - name: Build Go sidecar
+        shell: bash
+        working-directory: server
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p ../apps/desktop/src-tauri/binaries
+          go build -trimpath -ldflags="-s -w" \
+            -o "../apps/desktop/src-tauri/binaries/relayhub-core-${{ matrix.target }}${{ matrix.binary_ext }}" \
+            ./cmd/relayhub
+
+      - run: npm run tauri:build --workspace @relayhub/desktop -- --target ${{ matrix.target }}
+
+      - name: Upload desktop bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: relayhub-desktop-${{ matrix.artifact_name }}
+          path: apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**
+          if-no-files-found: error

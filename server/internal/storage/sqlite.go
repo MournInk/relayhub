@@ -302,8 +302,8 @@ func (s *SQLiteStore) UsageSummary(ctx context.Context) (models.UsageSummary, er
 	row := s.db.QueryRowContext(ctx, `
 SELECT
   COUNT(*) AS requests,
-  SUM(CASE WHEN status = 'succeeded' THEN 1 ELSE 0 END) AS successes,
-  SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failures,
+  COALESCE(SUM(CASE WHEN status = 'succeeded' THEN 1 ELSE 0 END), 0) AS successes,
+  COALESCE(SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END), 0) AS failures,
   COALESCE(SUM(json_extract(logical_usage_json, '$.input_tokens')), 0) AS input_tokens,
   COALESCE(SUM(json_extract(logical_usage_json, '$.output_tokens')), 0) AS output_tokens,
   COALESCE(SUM(json_extract(logical_usage_json, '$.cost')), 0) AS logical_cost,

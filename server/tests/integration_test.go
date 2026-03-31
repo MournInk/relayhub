@@ -92,6 +92,57 @@ func TestChatProxyAndAdminSummary(t *testing.T) {
 	}
 }
 
+func TestAdminOverviewOnFreshInstance(t *testing.T) {
+	t.Helper()
+
+	app := newTestApp(t)
+	defer app.Close()
+
+	server := httptest.NewServer(transport.NewRouter(app))
+	defer server.Close()
+
+	req, err := http.NewRequest(http.MethodGet, server.URL+"/api/admin/overview", nil)
+	if err != nil {
+		t.Fatalf("new admin overview request: %v", err)
+	}
+	req.Header.Set("Authorization", "Bearer relayhub-admin")
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("admin overview failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		raw, _ := io.ReadAll(resp.Body)
+		t.Fatalf("unexpected admin overview status %d: %s", resp.StatusCode, string(raw))
+	}
+
+	var overview struct {
+		Instance string `json:"instance"`
+		Listen   string `json:"listen"`
+		Summary  struct {
+			Requests     int `json:"requests"`
+			Successes    int `json:"successes"`
+			Failures     int `json:"failures"`
+			PhysicalCost int `json:"physical_cost"`
+		} `json:"summary"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&overview); err != nil {
+		t.Fatalf("decode admin overview: %v", err)
+	}
+	if overview.Instance == "" {
+		t.Fatalf("expected instance name in overview")
+	}
+	if overview.Listen == "" {
+		t.Fatalf("expected listen address in overview")
+	}
+	if overview.Summary.Requests != 0 || overview.Summary.Successes != 0 || overview.Summary.Failures != 0 {
+		t.Fatalf("expected zeroed fresh summary, got %+v", overview.Summary)
+	}
+}
+
 func TestReplayAndSessionBinding(t *testing.T) {
 	t.Helper()
 

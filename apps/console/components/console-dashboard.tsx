@@ -27,10 +27,24 @@ type LoadState = {
 
 type SectionKey = "dashboard" | "providers" | "models" | "rules" | "requests" | "sessions";
 
+const DEFAULT_WEB_API_BASE = "http://127.0.0.1:8080";
+const DEFAULT_DESKTOP_API_BASE = "http://127.0.0.1:4317";
+const DEFAULT_ADMIN_TOKEN = "relayhub-admin";
+
 const defaultState: RelayState = {
-  apiBase: "http://127.0.0.1:8080",
-  adminToken: "relayhub-admin",
+  apiBase: DEFAULT_WEB_API_BASE,
+  adminToken: DEFAULT_ADMIN_TOKEN,
 };
+
+function detectDefaultApiBase() {
+  if (typeof window === "undefined") {
+    return DEFAULT_WEB_API_BASE;
+  }
+  if ("__TAURI_INTERNALS__" in window || "__TAURI__" in window) {
+    return DEFAULT_DESKTOP_API_BASE;
+  }
+  return DEFAULT_WEB_API_BASE;
+}
 
 export function ConsoleDashboard() {
   const [state, setState] = useState<RelayState>(defaultState);
@@ -38,18 +52,28 @@ export function ConsoleDashboard() {
   const [section, setSection] = useState<SectionKey>("dashboard");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [initialized, setInitialized] = useState<boolean>(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("relayhub-console");
     if (saved) {
       setState(JSON.parse(saved) as RelayState);
+    } else {
+      setState((current) => ({
+        ...current,
+        apiBase: detectDefaultApiBase(),
+      }));
     }
+    setInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!initialized) {
+      return;
+    }
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.apiBase, state.adminToken]);
+  }, [initialized, state.apiBase, state.adminToken]);
 
   async function load() {
     setLoading(true);

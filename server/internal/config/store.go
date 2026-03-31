@@ -41,6 +41,7 @@ func Load(path string) (*Store, error) {
 	if err := json.Unmarshal(raw, &cfg); err != nil {
 		return nil, err
 	}
+	applyEnvOverrides(&cfg)
 
 	return &Store{path: path, cfg: cfg}, nil
 }
@@ -243,4 +244,19 @@ func (s *Store) UpsertRouteRule(rule models.RouteRule) error {
 		cfg.RouteRules = append(cfg.RouteRules, rule)
 	}
 	return s.Save(cfg)
+}
+
+func applyEnvOverrides(cfg *models.AppConfig) {
+	if value := os.Getenv("RELAYHUB_INSTANCE_NAME"); value != "" {
+		cfg.InstanceName = value
+	}
+	if value := os.Getenv("RELAYHUB_LISTEN"); value != "" {
+		cfg.Listen = value
+	}
+	if value := os.Getenv("RELAYHUB_ADMIN_TOKEN"); value != "" {
+		cfg.AdminToken = value
+	}
+	if value := os.Getenv("RELAYHUB_DATABASE_PATH"); value != "" {
+		cfg.DatabasePath = value
+	}
 }
