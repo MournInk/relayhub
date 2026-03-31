@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="0.5" stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="180" y1="156" x2="348" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#bg)"/>
+  <path d="M180 156H278C339.856 156 390 206.144 390 268C390 329.856 339.856 380 278 380H180V156Z" fill="url(#accent)"/>
+  <path d="M188 164H272C319.496 164 358 202.504 358 250C358 297.496 319.496 336 272 336H188V164Z" fill="#F8FAFC"/>
+  <path d="M214 196H268C297.823 196 322 220.177 322 250C322 279.823 297.823 304 268 304H214V196Z" fill="#0F172A"/>
+  <path d="M138 156H194V380H138C115.909 380 98 362.091 98 340V196C98 173.909 115.909 156 138 156Z" fill="#0F172A"/>
+  <path d="M118 236H188V300H118C109.163 300 102 292.837 102 284V252C102 243.163 109.163 236 118 236Z" fill="#22D3EE"/>
+</svg>
