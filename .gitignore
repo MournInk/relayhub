@@ -1,0 +1,24 @@
+# Node
+node_modules
+.next
+out
+npm-debug.log*
+*.tsbuildinfo
+
+# Go
+server/bin
+server/data
+server/coverage.out
+
+# Tauri
+apps/desktop/src-tauri/target
+apps/desktop/src-tauri/gen
+
+# IDE
+.DS_Store
+.idea
+.vscode
+
+# Build artifacts
+dist
+coverage

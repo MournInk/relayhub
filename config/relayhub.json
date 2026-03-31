@@ -1,0 +1,139 @@
+{
+  "instance_name": "RelayHub Local",
+  "listen": ":8080",
+  "admin_token": "relayhub-admin",
+  "database_path": "./data/relayhub.db",
+  "projects": [
+    {
+      "id": "local-dev",
+      "name": "Local Dev",
+      "daily_budget": 50
+    }
+  ],
+  "api_keys": [
+    {
+      "id": "local-dev-key",
+      "name": "Local Development",
+      "key": "relayhub-local-key",
+      "project_id": "local-dev",
+      "enabled": true
+    }
+  ],
+  "providers": [
+    {
+      "id": "mock-fast",
+      "name": "Mock Fast",
+      "type": "mock",
+      "base_url": "",
+      "api_key": "",
+      "enabled": true,
+      "priority": 100,
+      "tags": ["fast", "chat"],
+      "latency_ms": 40,
+      "jitter_ms": 15,
+      "cost_per_1k_input": 0.4,
+      "cost_per_1k_output": 0.8,
+      "response_template": "Fast route from {{provider}} handling {{prompt}}",
+      "system_prompt": "",
+      "capabilities": ["chat", "responses", "messages", "embeddings"],
+      "health_score": 100
+    },
+    {
+      "id": "mock-balanced",
+      "name": "Mock Balanced",
+      "type": "mock",
+      "base_url": "",
+      "api_key": "",
+      "enabled": true,
+      "priority": 80,
+      "tags": ["balanced", "chat"],
+      "latency_ms": 90,
+      "jitter_ms": 20,
+      "cost_per_1k_input": 0.18,
+      "cost_per_1k_output": 0.36,
+      "response_template": "Balanced route from {{provider}} handling {{prompt}}",
+      "system_prompt": "",
+      "capabilities": ["chat", "responses", "messages", "embeddings"],
+      "health_score": 100
+    },
+    {
+      "id": "mock-precise",
+      "name": "Mock Precise",
+      "type": "mock",
+      "base_url": "",
+      "api_key": "",
+      "enabled": true,
+      "priority": 90,
+      "tags": ["precise", "chat"],
+      "latency_ms": 120,
+      "jitter_ms": 25,
+      "cost_per_1k_input": 0.28,
+      "cost_per_1k_output": 0.56,
+      "response_template": "Precise route from {{provider}} handling {{prompt}}",
+      "system_prompt": "",
+      "capabilities": ["chat", "responses", "messages", "embeddings"],
+      "health_score": 100
+    }
+  ],
+  "logical_models": [
+    {
+      "id": "smart-fast",
+      "name": "Smart Fast",
+      "task_type": "chat",
+      "description": "低延迟优先，默认竞速。",
+      "tags": ["default", "fast"],
+      "targets": [
+        { "provider_id": "mock-fast", "model": "mock-fast", "priority": 100, "weight": 1, "tags": ["fast"] },
+        { "provider_id": "mock-balanced", "model": "mock-balanced", "priority": 80, "weight": 1, "tags": ["fallback"] }
+      ]
+    },
+    {
+      "id": "smart-budget",
+      "name": "Smart Budget",
+      "task_type": "chat",
+      "description": "低成本优先。",
+      "tags": ["budget"],
+      "targets": [
+        { "provider_id": "mock-balanced", "model": "mock-balanced", "priority": 100, "weight": 1, "tags": ["cheap"] },
+        { "provider_id": "mock-precise", "model": "mock-precise", "priority": 80, "weight": 1, "tags": ["backup"] }
+      ]
+    },
+    {
+      "id": "smart-precise",
+      "name": "Smart Precise",
+      "task_type": "chat",
+      "description": "质量和稳定性优先。",
+      "tags": ["precise"],
+      "targets": [
+        { "provider_id": "mock-precise", "model": "mock-precise", "priority": 100, "weight": 1, "tags": ["precise"] },
+        { "provider_id": "mock-balanced", "model": "mock-balanced", "priority": 80, "weight": 1, "tags": ["fallback"] }
+      ]
+    }
+  ],
+  "route_rules": [
+    {
+      "id": "smart-fast-race",
+      "name": "Fast Model Race",
+      "enabled": true,
+      "priority": 100,
+      "match": { "logical_model": "smart-fast", "project_id": "", "provider_tags": [], "min_chars": 0, "require_tools": false },
+      "policy": { "strategy": "race", "winner": "first_complete", "max_candidates": 2, "hedge_delay_ms": 0, "provider_ids": [], "prefer_session_bound": true }
+    },
+    {
+      "id": "smart-budget-single",
+      "name": "Budget Single Route",
+      "enabled": true,
+      "priority": 90,
+      "match": { "logical_model": "smart-budget", "project_id": "", "provider_tags": [], "min_chars": 0, "require_tools": false },
+      "policy": { "strategy": "single", "winner": "first_complete", "max_candidates": 1, "hedge_delay_ms": 0, "provider_ids": [], "prefer_session_bound": true }
+    },
+    {
+      "id": "smart-precise-failover",
+      "name": "Precise Failover",
+      "enabled": true,
+      "priority": 80,
+      "match": { "logical_model": "smart-precise", "project_id": "", "provider_tags": [], "min_chars": 0, "require_tools": false },
+      "policy": { "strategy": "failover", "winner": "first_complete", "max_candidates": 2, "hedge_delay_ms": 0, "provider_ids": [], "prefer_session_bound": true }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  console:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck:console
+      - run: npm run build:console
+
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f server/Dockerfile --target test .
+      - run: docker build -f server/Dockerfile -t relayhub-server .
+      - run: |
+          docker run -d --name relayhub-smoke -p 18080:8080 relayhub-server
+          sleep 3
+          curl -fsS http://127.0.0.1:18080/healthz
+          curl -fsS -H "Authorization: Bearer relayhub-local-key" -H "Content-Type: application/json" \
+            -d '{"model":"smart-fast","messages":[{"role":"user","content":"smoke"}]}' \
+            http://127.0.0.1:18080/v1/chat/completions
+          docker stop relayhub-smoke

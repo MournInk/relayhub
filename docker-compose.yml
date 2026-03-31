@@ -1,0 +1,11 @@
+services:
+  relayhub:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      RELAYHUB_CONFIG: /app/config/relayhub.json
+    volumes:
+      - ./config:/app/config

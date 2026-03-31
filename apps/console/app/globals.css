@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "@heroui/react/styles";
+
+:root {
+  --relay-bg: #08111d;
+  --relay-surface: rgba(11, 23, 39, 0.84);
+  --relay-line: rgba(148, 163, 184, 0.16);
+  --relay-text: #e2e8f0;
+  --relay-muted: #94a3b8;
+  --relay-accent: #23c7a6;
+  --relay-accent-2: #38bdf8;
+  --relay-danger: #fb7185;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--relay-text);
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(35, 199, 166, 0.15), transparent 32%),
+    linear-gradient(180deg, #08111d, #0b1424 52%, #0c1320);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.relay-shell {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.relay-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.relay-panel {
+  border: 1px solid var(--relay-line);
+  background: var(--relay-surface);
+  backdrop-filter: blur(20px);
+}
+
+.relay-gradient-text {
+  background: linear-gradient(90deg, var(--relay-accent), #8b5cf6, var(--relay-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.relay-mono {
+  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+}

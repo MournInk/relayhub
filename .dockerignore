@@ -1,0 +1,6 @@
+.git
+node_modules
+apps/console/.next
+apps/console/out
+apps/desktop/src-tauri/target
+npm-debug.log*
