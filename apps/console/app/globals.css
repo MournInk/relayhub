@@ -1,34 +1,104 @@
 @import "tailwindcss";
-@import "@heroui/react/styles";
 
 :root {
-  --relay-bg: #08111d;
-  --relay-surface: rgba(11, 23, 39, 0.84);
-  --relay-line: rgba(148, 163, 184, 0.16);
-  --relay-text: #e2e8f0;
-  --relay-muted: #94a3b8;
-  --relay-accent: #23c7a6;
-  --relay-accent-2: #38bdf8;
-  --relay-danger: #fb7185;
+  --background: oklch(0.9624 0.0078 85.4379);
+  --foreground: oklch(0.3227 0.0228 83.0599);
+  --card: oklch(0.9914 0.0026 95.1935);
+  --card-foreground: oklch(0.3227 0.0228 83.0599);
+  --muted: oklch(0.9394 0.0105 85.9096);
+  --muted-foreground: oklch(0.5572 0.0182 81.7702);
+  --primary: oklch(0.6542 0.0939 149.1784);
+  --primary-foreground: oklch(0.9815 0.0088 148.1431);
+  --secondary: oklch(0.8959 0.0206 92.7068);
+  --secondary-foreground: oklch(0.3849 0.0232 80.2491);
+  --accent: oklch(0.7413 0.0566 176.1241);
+  --accent-foreground: oklch(0.3206 0.0307 175.1678);
+  --border: oklch(0.8761 0.0150 86.7080);
+  --danger: oklch(0.6534 0.1474 28.5996);
+  --success: oklch(0.6949 0.1071 147.8335);
+  --warning: oklch(0.7908 0.1192 84.4539);
+  --radius: 1.75rem;
 }
 
-* {
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --radius-sm: calc(var(--radius) - 12px);
+  --radius-md: calc(var(--radius) - 8px);
+  --radius-lg: calc(var(--radius) - 4px);
+  --radius-xl: var(--radius);
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html,
 body {
   min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  color: var(--relay-text);
+  color: var(--foreground);
   background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 30%),
-    radial-gradient(circle at top right, rgba(35, 199, 166, 0.15), transparent 32%),
-    linear-gradient(180deg, #08111d, #0b1424 52%, #0c1320);
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+    radial-gradient(circle at 82% 16%, rgba(151, 193, 169, 0.28), transparent 28%),
+    radial-gradient(circle at 12% 78%, rgba(178, 209, 218, 0.22), transparent 24%),
+    linear-gradient(180deg, #f7f5ef 0%, #f3f1eb 48%, #efede6 100%);
+  font-family:
+    var(--font-sans),
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    sans-serif;
+  position: relative;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(72px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+body::before {
+  top: 6rem;
+  right: 6rem;
+  width: 18rem;
+  height: 18rem;
+  background: rgba(159, 193, 160, 0.35);
+}
+
+body::after {
+  left: 2rem;
+  bottom: 4rem;
+  width: 20rem;
+  height: 20rem;
+  background: rgba(180, 211, 222, 0.32);
 }
 
 a {
@@ -36,30 +106,62 @@ a {
   text-decoration: none;
 }
 
-.relay-shell {
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 28px;
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
-.relay-grid {
-  display: grid;
-  gap: 20px;
+code,
+pre {
+  font-family:
+    var(--font-mono),
+    "SFMono-Regular",
+    Consolas,
+    monospace;
 }
 
-.relay-panel {
-  border: 1px solid var(--relay-line);
-  background: var(--relay-surface);
-  backdrop-filter: blur(20px);
+::selection {
+  background: rgba(121, 153, 112, 0.22);
 }
 
-.relay-gradient-text {
-  background: linear-gradient(90deg, var(--relay-accent), #8b5cf6, var(--relay-accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
-.relay-mono {
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+@layer components {
+  .rh-shell {
+    @apply mx-auto min-h-screen w-full max-w-[1560px] px-4 py-6 md:px-8 md:py-8;
+  }
+
+  .rh-surface {
+    @apply rounded-[32px] border border-border/75 bg-card/90 shadow-[0_22px_70px_rgba(92,106,79,0.10)] backdrop-blur;
+  }
+
+  .rh-surface-soft {
+    @apply rounded-[28px] border border-border/70 bg-white/72 shadow-[0_16px_48px_rgba(103,116,90,0.08)] backdrop-blur;
+  }
+
+  .rh-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.26em] text-muted-foreground;
+  }
+
+  .rh-title {
+    @apply text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground md:text-5xl;
+  }
+
+  .rh-data-grid {
+    background-image:
+      linear-gradient(to right, rgba(173, 181, 162, 0.14) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(173, 181, 162, 0.14) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
 }

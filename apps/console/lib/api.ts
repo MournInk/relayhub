@@ -36,7 +36,8 @@ async function fetchJSON<T>(path: string, state: RelayState): Promise<T> {
     cache: "no-store",
   });
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    const message = await response.text();
+    throw new Error(message || `Request failed: ${response.status}`);
   }
   return response.json() as Promise<T>;
 }
@@ -55,10 +56,19 @@ export type ProviderItem = {
   id: string;
   name: string;
   type: string;
+  base_url: string;
+  api_key: string;
   enabled: boolean;
   priority: number;
   tags: string[];
-  health_score?: number;
+  latency_ms: number;
+  jitter_ms: number;
+  cost_per_1k_input: number;
+  cost_per_1k_output: number;
+  response_template: string;
+  system_prompt: string;
+  capabilities: string[];
+  health_score: number;
 };
 
 export type ModelItem = {
@@ -71,6 +81,8 @@ export type ModelItem = {
     provider_id: string;
     model: string;
     priority: number;
+    weight: number;
+    tags: string[];
   }>;
 };
 
@@ -79,10 +91,20 @@ export type RuleItem = {
   name: string;
   enabled: boolean;
   priority: number;
+  match: {
+    logical_model: string;
+    project_id: string;
+    provider_tags: string[];
+    min_chars: number;
+    require_tools: boolean;
+  };
   policy: {
     strategy: string;
     max_candidates: number;
     winner: string;
+    hedge_delay_ms: number;
+    provider_ids: string[];
+    prefer_session_bound: boolean;
   };
 };
 
